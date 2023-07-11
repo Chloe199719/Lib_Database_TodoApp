@@ -18,7 +18,13 @@ use super::models;
 
 pub fn create_user (new_user: models::NewUsers) -> Result<(), Error> {
     
-  let connection = &mut  establish_connection();
+  let connection =  &mut establish_connection();
+  let connection = match connection {
+    Ok(connection) => connection,
+    Err(e) => return Err(Error::BrokenTransactionManager),
+      
+  };
+
   use crate::schema::users::dsl::*;
   let new_user = models::NewUsers {
 
@@ -43,7 +49,12 @@ pub fn create_user (new_user: models::NewUsers) -> Result<(), Error> {
 
 pub fn init_session (new_session: models::NewSessions)  -> Result<(), Error> {
     
-  let connection = &mut  establish_connection();
+  let connection =  &mut establish_connection();
+  let connection = match connection {
+    Ok(connection) => connection,
+    Err(e) => return Err(Error::BrokenTransactionManager),
+      
+  };
   use crate::schema::sessions::dsl::*;
   let new_session = models::NewSessions {
     token: new_session.token,
@@ -66,7 +77,12 @@ pub fn init_session (new_session: models::NewSessions)  -> Result<(), Error> {
 
 pub fn create_toodo (new_todo: models::CreateTodos)  -> Result<(), Error>  {
     
-  let connection = &mut  establish_connection();
+  let connection =  &mut establish_connection();
+  let connection = match connection {
+    Ok(connection) => connection,
+    Err(e) => return Err(Error::BrokenTransactionManager),
+      
+  };
   use crate::schema::todos::dsl::*;
   let new_todo = models::CreateTodos {
     title: new_todo.title,
@@ -92,7 +108,12 @@ pub fn create_toodo (new_todo: models::CreateTodos)  -> Result<(), Error>  {
 
 
 pub fn get_user_by_username (user_name: String) -> Result< models::Users, Error> {
-  let connection = &mut  establish_connection();
+  let connection =  &mut establish_connection();
+  let connection = match connection {
+    Ok(connection) => connection,
+    Err(e) => return Err(Error::BrokenTransactionManager),
+      
+  };
   use crate::schema::users::dsl::*;
   let  result = users.filter(username.eq(user_name)).first::<models::Users>(connection);
   match result {
@@ -108,7 +129,12 @@ pub fn get_user_by_username (user_name: String) -> Result< models::Users, Error>
 
 
 pub fn get_user_by_id (user_id: uuid::Uuid) -> Result< models::Users, Error> {
-  let connection = &mut  establish_connection();
+  let connection =  &mut establish_connection();
+  let connection = match connection {
+    Ok(connection) => connection,
+    Err(e) => return Err(Error::BrokenTransactionManager),
+      
+  };
   use crate::schema::users::dsl::*;
   let result =  users.filter(id.eq(user_id)).first::<models::Users>(connection);
   match result {
@@ -126,7 +152,12 @@ pub fn get_user_by_id (user_id: uuid::Uuid) -> Result< models::Users, Error> {
 
 
 pub fn get_user_by_email (user_email: String) -> Result< models::Users, Error>{
-  let connection = &mut  establish_connection();
+  let connection =  &mut establish_connection();
+  let connection = match connection {
+    Ok(connection) => connection,
+    Err(e) => return Err(Error::BrokenTransactionManager),
+      
+  };
   use crate::schema::users::dsl::*;
   let result =  users.filter(email.eq(user_email)).first::<models::Users>(connection);
   match result {
@@ -144,7 +175,12 @@ pub fn get_user_by_email (user_email: String) -> Result< models::Users, Error>{
 /// 
 
 pub fn get_user_by_session (user_token: String) -> Result<models::Users, Error> {
-  let connection = &mut  establish_connection();
+  let connection =  &mut establish_connection();
+  let connection = match connection {
+    Ok(connection) => connection,
+    Err(e) => return Err(Error::BrokenTransactionManager),
+      
+  };
   use crate::schema::sessions::dsl::*;
   use crate::schema::users::dsl::*;
   use crate::schema::users::dsl::id;
@@ -165,7 +201,12 @@ pub fn get_user_by_session (user_token: String) -> Result<models::Users, Error> 
 
 
 pub fn get_todos_by_user_id (user_id: uuid::Uuid) -> Result<Vec<models::Todos>,Error> {
-  let connection = &mut  establish_connection();
+  let connection =  &mut establish_connection();
+  let connection = match connection {
+    Ok(connection) => connection,
+    Err(e) => return Err(Error::BrokenTransactionManager),
+      
+  };
   use crate::schema::todos::dsl::*;
   let result = todos.filter(user_id.eq(user_id)).load::<models::Todos>(connection)?;
   Ok(result)
@@ -181,7 +222,12 @@ pub fn get_todos_by_user_id (user_id: uuid::Uuid) -> Result<Vec<models::Todos>,E
 
 
 pub fn get_todo_by_id (todo_id: uuid::Uuid) -> Result<models::Todos, Error>{
-  let connection = &mut  establish_connection();
+  let connection =  &mut establish_connection();
+  let connection = match connection {
+    Ok(connection) => connection,
+    Err(e) => return Err(Error::BrokenTransactionManager),
+      
+  };
   use crate::schema::todos::dsl::*;
   let result = todos.filter(id.eq(todo_id)).first::<models::Todos>(connection)?;
   Ok(result)
@@ -196,7 +242,12 @@ pub fn get_todo_by_id (todo_id: uuid::Uuid) -> Result<models::Todos, Error>{
 
 
 pub fn todo_update_complete (todo_id: uuid::Uuid) -> Result<(), Error>{
-  let connection = &mut  establish_connection();
+  let connection =  &mut establish_connection();
+  let connection = match connection {
+    Ok(connection) => connection,
+    Err(e) => return Err(Error::BrokenTransactionManager),
+      
+  };
   use crate::schema::todos::dsl::*;
   let result = diesel::update(todos.filter(id.eq(todo_id)))
     .set(completed.eq(true))
@@ -212,7 +263,12 @@ pub fn todo_update_complete (todo_id: uuid::Uuid) -> Result<(), Error>{
 /// 
 
 pub fn todo_update_incomplete (todo_id: uuid::Uuid) -> Result<(), Error>{
-  let connection = &mut  establish_connection();
+  let connection =  &mut establish_connection();
+  let connection = match connection {
+    Ok(connection) => connection,
+    Err(e) => return Err(Error::BrokenTransactionManager),
+      
+  };
   use crate::schema::todos::dsl::*;
    diesel::update(todos.filter(id.eq(todo_id)))
     .set(completed.eq(false))
@@ -240,7 +296,12 @@ pub fn todo_update_incomplete (todo_id: uuid::Uuid) -> Result<(), Error>{
 
 
 pub fn todo_update_information (new_todo: models::UpdateTodos) -> Result<(), Error>{
-  let connection = &mut  establish_connection();
+  let connection =  &mut establish_connection();
+  let connection = match connection {
+    Ok(connection) => connection,
+    Err(e) => return Err(Error::BrokenTransactionManager),
+      
+  };
   use crate::schema::todos::dsl::*;
   diesel::update(todos.filter(id.eq(new_todo.id)))
     .set((
@@ -262,7 +323,12 @@ pub fn todo_update_information (new_todo: models::UpdateTodos) -> Result<(), Err
 
 
 pub fn todo_delete (todo_id: uuid::Uuid) -> Result<(), Error>{
-  let connection = &mut  establish_connection();
+  let connection =  &mut establish_connection();
+  let connection = match connection {
+    Ok(connection) => connection,
+    Err(e) => return Err(Error::BrokenTransactionManager),
+      
+  };
   use crate::schema::todos::dsl::*;
   diesel::delete(todos.filter(id.eq(todo_id)))
     .execute(connection)?;
@@ -278,7 +344,12 @@ pub fn todo_delete (todo_id: uuid::Uuid) -> Result<(), Error>{
 
 
 pub fn session_delete (session_token: String) -> Result<(), Error>{
-  let connection = &mut  establish_connection();
+  let connection =  &mut establish_connection();
+  let connection = match connection {
+    Ok(connection) => connection,
+    Err(e) => return Err(Error::BrokenTransactionManager),
+      
+  };
   use crate::schema::sessions::dsl::*;
   diesel::delete(sessions.filter(token.eq(session_token)))
     .execute(connection)?;
@@ -302,7 +373,12 @@ pub fn session_delete (session_token: String) -> Result<(), Error>{
 
 
 pub fn update_user_username (new_user:models::UpdateUserName) -> Result<(), Error>{
-  let connection = &mut  establish_connection();
+  let connection =  &mut establish_connection();
+  let connection = match connection {
+    Ok(connection) => connection,
+    Err(e) => return Err(Error::BrokenTransactionManager),
+      
+  };
   use crate::schema::users::dsl::*;
   diesel::update(users.filter(id.eq(new_user.id)))
     .set(username.eq(new_user.username))
@@ -329,7 +405,12 @@ pub fn update_user_username (new_user:models::UpdateUserName) -> Result<(), Erro
 
 
 pub fn update_user_email (new_email: models::UpdateUserEmail) -> Result<(), Error> {
-  let connection = &mut  establish_connection();
+  let connection =  &mut establish_connection();
+  let connection = match connection {
+    Ok(connection) => connection,
+    Err(e) => return Err(Error::BrokenTransactionManager),
+      
+  };
   use crate::schema::users::dsl::*;
   diesel::update(users.filter(id.eq(new_email.id)))
     .set(email.eq(new_email.email)).execute(connection)?;
@@ -350,7 +431,12 @@ pub fn update_user_email (new_email: models::UpdateUserEmail) -> Result<(), Erro
 /// 
 
 pub fn update_user_password (new_password: models::UpdateUserPassword) -> Result<(), Error>  {
-  let connection = &mut  establish_connection();
+  let connection =  &mut establish_connection();
+  let connection = match connection {
+    Ok(connection) => connection,
+    Err(e) => return Err(Error::BrokenTransactionManager),
+      
+  };
   use crate::schema::users::dsl::*;
   diesel::update(users.filter(id.eq(new_password.id)))
     .set(password.eq(new_password.password)).execute(connection)?;
@@ -364,7 +450,12 @@ pub fn update_user_password (new_password: models::UpdateUserPassword) -> Result
 /// Return ```Ok(())``` if successful, or ```Err(Error)``` if unsuccessful.
 /// 
 pub fn verify_email_user (user_id: uuid::Uuid) -> Result<(), Error> {
-  let connection = &mut  establish_connection();
+  let connection =  &mut establish_connection();
+  let connection = match connection {
+    Ok(connection) => connection,
+    Err(e) => return Err(Error::BrokenTransactionManager),
+      
+  };
   use crate::schema::users::dsl::*;
   diesel::update(users.filter(id.eq(user_id)))
     .set(email_verified.eq(true)).execute(connection)?;
@@ -378,11 +469,17 @@ pub fn verify_email_user (user_id: uuid::Uuid) -> Result<(), Error> {
 /// 
 /// Return ```Ok(())``` if successful, or ```Err(Error)``` if unsuccessful.
 /// 
-pub fn remove_verify_email_user (user_id: uuid::Uuid) {
-  let connection = &mut  establish_connection();
+pub fn remove_verify_email_user (user_id: uuid::Uuid) -> Result<(), Error> {
+  let connection =  &mut establish_connection();
+  let connection = match connection {
+    Ok(connection) => connection,
+    Err(e) => return Err(Error::BrokenTransactionManager),
+      
+  };
   use crate::schema::users::dsl::*;
   diesel::update(users.filter(id.eq(user_id)))
-    .set(email_verified.eq(false)).execute(connection).expect("Error updating user email");
+    .set(email_verified.eq(false)).execute(connection)?;
+  Ok(())
 }
 
 /// Add a a new Verification token to the database
@@ -400,7 +497,12 @@ pub fn remove_verify_email_user (user_id: uuid::Uuid) {
 
 
 pub fn add_verify_token (user_idd: uuid::Uuid, tokenn: String, time: chrono::NaiveDateTime)-> Result<(),Error> {
-  let connection = &mut  establish_connection();
+  let connection =  &mut establish_connection();
+  let connection = match connection {
+    Ok(connection) => connection,
+    Err(e) => return Err(Error::BrokenTransactionManager),
+      
+  };
   use crate::schema::email_verify_tokens::dsl::*;
   let new_token = models::NewEmailVerifyTokens {
     user_id: user_idd,
@@ -425,7 +527,12 @@ pub fn add_verify_token (user_idd: uuid::Uuid, tokenn: String, time: chrono::Nai
 
 
 pub fn get_verify_token (tokenn: String) -> Result<models::EmailVerifyTokens, Error> {
-  let connection = &mut  establish_connection();
+  let connection =  &mut establish_connection();
+  let connection = match connection {
+    Ok(connection) => connection,
+    Err(e) => return Err(Error::BrokenTransactionManager),
+      
+  };
   use crate::schema::email_verify_tokens::dsl::*;
   let result = email_verify_tokens.filter(token.eq(tokenn)).first::<models::EmailVerifyTokens>(connection)?;
   Ok(result)
@@ -441,7 +548,12 @@ pub fn get_verify_token (tokenn: String) -> Result<models::EmailVerifyTokens, Er
 /// 
 
 pub fn delete_verify_token (tokenn: String) -> Result<(), Error> {
-  let connection = &mut  establish_connection();
+  let connection =  &mut establish_connection();
+  let connection = match connection {
+    Ok(connection) => connection,
+    Err(e) => return Err(Error::BrokenTransactionManager),
+      
+  };
   use crate::schema::email_verify_tokens::dsl::*;
   diesel::delete(email_verify_tokens.filter(token.eq(tokenn)))
     .execute(connection)?;
