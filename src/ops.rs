@@ -6,7 +6,17 @@ use crate::{establish_connection, models::UpdateUserName};
 use diesel::prelude::*;
 // use super::establish_connection;
 use super::models;
-pub fn create_user (new_user: models::NewUsers)  {
+
+
+/// Create a new user
+/// ```create_user``` takes a ```NewUsers``` struct and inserts it into the database.
+/// 
+/// Returns ```Ok``` if successful, or ```Err``` if unsuccessful.
+
+
+
+
+pub fn create_user (new_user: models::NewUsers) -> Result<(), Error> {
     
   let connection = &mut  establish_connection();
   use crate::schema::users::dsl::*;
@@ -18,11 +28,20 @@ pub fn create_user (new_user: models::NewUsers)  {
   };
   diesel::insert_into(users)
     .values(&new_user)
-    .execute(connection)
-    .expect("Error saving new user");
+    .execute(connection)?;
+
+  Ok(())
 }
 
-pub fn init_session (new_session: models::NewSessions)  {
+/// Create a new session token for a user
+/// ```init_session``` takes a ```NewSessions``` struct and inserts it into the database.
+/// 
+/// Returns ```Ok``` if successful, or ```Err``` if unsuccessful.
+
+
+
+
+pub fn init_session (new_session: models::NewSessions)  -> Result<(), Error> {
     
   let connection = &mut  establish_connection();
   use crate::schema::sessions::dsl::*;
@@ -33,11 +52,19 @@ pub fn init_session (new_session: models::NewSessions)  {
   };
   diesel::insert_into(sessions)
     .values(&new_session)
-    .execute(connection)
-    .expect("Error saving new session");
+    .execute(connection)?;
+  Ok(())
 }
 
-pub fn create_toodo (new_todo: models::CreateTodos)  {
+/// Create a new todo
+/// 
+/// ```create_toodo``` takes a ```CreateTodos``` struct and inserts it into the database.
+/// 
+/// Returns ```Ok``` if successful, or ```Err``` if unsuccessful.
+
+
+
+pub fn create_toodo (new_todo: models::CreateTodos)  -> Result<(), Error>  {
     
   let connection = &mut  establish_connection();
   use crate::schema::todos::dsl::*;
@@ -48,70 +75,171 @@ pub fn create_toodo (new_todo: models::CreateTodos)  {
     todopriority: new_todo.todopriority,
     user_id: new_todo.user_id,
   };
-  diesel::insert_into(todos)
+   diesel::insert_into(todos)
     .values(&new_todo)
     .execute(connection)
-    .expect("Error saving new todo");
+    ?;
+  Ok(())
 }
 
-pub fn get_user_by_username (user_name: String) -> models::Users {
+
+/// Gets User Profile by providing a userName
+/// 
+/// ```get_user_by_username``` takes a ```String``` and returns a ```Result<models::Users, Error>```
+/// 
+/// Return ```Ok(models::Users)``` if successful, or ```Err(Error)``` if unsuccessful.
+
+
+
+pub fn get_user_by_username (user_name: String) -> Result< models::Users, Error> {
   let connection = &mut  establish_connection();
   use crate::schema::users::dsl::*;
-    users.filter(username.eq(user_name)).first::<models::Users>(connection).expect("Error loading user")
+  let  result = users.filter(username.eq(user_name)).first::<models::Users>(connection);
+  match result {
+    Ok(user) => Ok(user),
+    Err(e) => Err(e),
+  }
 }
+/// Gets User Profile by providing a user_id
+/// 
+/// ```get_user_by_id``` takes a ```uuid::Uuid``` and returns a ```models::Users```
+/// 
+/// Return ```models::Users``` if successful, or ```Err(Error)``` if unsuccessful.
 
-pub fn get_user_by_id (user_id: uuid::Uuid) -> models::Users {
+
+pub fn get_user_by_id (user_id: uuid::Uuid) -> Result< models::Users, Error> {
   let connection = &mut  establish_connection();
   use crate::schema::users::dsl::*;
-    users.filter(id.eq(user_id)).first::<models::Users>(connection).expect("Error loading user")
+  let result =  users.filter(id.eq(user_id)).first::<models::Users>(connection);
+  match result {
+    Ok(user) => Ok(user),
+    Err(e) => Err(e),
+  }
 }
 
-pub fn get_user_by_email (user_email: String) -> models::Users {
+/// Gets User Profile by providing a user_email
+/// 
+/// ```get_user_by_email``` takes a ```String``` and returns a ```models::Users```
+/// 
+/// Return ```models::Users``` if successful, or ```Err(Error)``` if unsuccessful.
+
+
+
+pub fn get_user_by_email (user_email: String) -> Result< models::Users, Error>{
   let connection = &mut  establish_connection();
   use crate::schema::users::dsl::*;
-    users.filter(email.eq(user_email)).first::<models::Users>(connection).expect("Error loading user")
+  let result =  users.filter(email.eq(user_email)).first::<models::Users>(connection);
+  match result {
+    Ok(user) => Ok(user),
+    Err(e) => Err(e),
+  }
 }
 
 
+/// Gets User Profile by providing a user_token
+/// 
+/// ```get_user_by_session``` takes a ```String``` and returns a ```models::Users```
+/// 
+/// Return ```models::Users``` if successful, or ```Err(Error)``` if unsuccessful.
+/// 
 
-pub fn get_user_by_session (user_token: String) -> models::Users {
+pub fn get_user_by_session (user_token: String) -> Result<models::Users, Error> {
   let connection = &mut  establish_connection();
   use crate::schema::sessions::dsl::*;
   use crate::schema::users::dsl::*;
   use crate::schema::users::dsl::id;
 
-  let session = sessions.filter(token.eq(user_token)).first::<models::Sessions>(connection).expect("Error loading session");
-  users.filter(id.eq(session.user_id)).first::<models::Users>(connection).expect("Error loading user")
+  let session = sessions.filter(token.eq(user_token)).first::<models::Sessions>(connection)?;
+  let user = users.filter(id.eq(session.user_id)).first::<models::Users>(connection)?;
+  Ok(user)
+      
+  
 }
 
-pub fn get_todos_by_user_id (user_id: uuid::Uuid) -> Vec<models::Todos> {
+/// Gets all todo's for a user
+/// 
+/// ```get_todo's_by_user_id``` takes a ```uuid::Uuid``` and returns a ```Vec<models::Todos>```
+/// 
+/// Return ```Vec<models::Todos>``` if successful, or ```Err(Error)``` if unsuccessful.
+/// 
+
+
+pub fn get_todos_by_user_id (user_id: uuid::Uuid) -> Result<Vec<models::Todos>,Error> {
   let connection = &mut  establish_connection();
   use crate::schema::todos::dsl::*;
-  todos.filter(user_id.eq(user_id)).load::<models::Todos>(connection).expect("Error loading todos")
+  let result = todos.filter(user_id.eq(user_id)).load::<models::Todos>(connection)?;
+  Ok(result)
 }
 
-pub fn get_todo_by_id (todo_id: uuid::Uuid) -> models::Todos {
+/// Gets a todo by providing a todo_id
+/// 
+/// ```get_todo_by_id``` takes a ```uuid::Uuid``` and returns a ```models::Todos```
+/// 
+/// Return ```models::Todos``` if successful, or ```Err(Error)``` if unsuccessful.
+/// 
+
+
+
+pub fn get_todo_by_id (todo_id: uuid::Uuid) -> Result<models::Todos, Error>{
   let connection = &mut  establish_connection();
   use crate::schema::todos::dsl::*;
-  todos.filter(id.eq(todo_id)).first::<models::Todos>(connection).expect("Error loading todo")
+  let result = todos.filter(id.eq(todo_id)).first::<models::Todos>(connection)?;
+  Ok(result)
 }
 
-pub fn todo_update_complete (todo_id: uuid::Uuid) -> Result<models::Todos, Error>{
+/// Completes a todo by providing a todo_id
+/// 
+/// ```todo_update_complete``` takes a ```uuid::Uuid``` and returns a ```models::Todos```
+/// 
+/// Return ```Ok(())``` if successful, or ```Err(Error)``` if unsuccessful.
+/// 
+
+
+pub fn todo_update_complete (todo_id: uuid::Uuid) -> Result<(), Error>{
   let connection = &mut  establish_connection();
   use crate::schema::todos::dsl::*;
-  diesel::update(todos.filter(id.eq(todo_id)))
+  let result = diesel::update(todos.filter(id.eq(todo_id)))
     .set(completed.eq(true))
-    .get_result::<models::Todos>(connection)
-}
-pub fn todo_update_incomplete (todo_id: uuid::Uuid) -> Result<models::Todos, Error>{
-  let connection = &mut  establish_connection();
-  use crate::schema::todos::dsl::*;
-  diesel::update(todos.filter(id.eq(todo_id)))
-    .set(completed.eq(false))
-    .get_result::<models::Todos>(connection)
+    .execute(connection)?;
+  Ok(())
 }
 
-pub fn todo_update_information (new_todo: models::UpdateTodos) -> Result<models::Todos, Error>{
+/// Incompletes a todo by providing a todo_id
+/// 
+/// ```todo_update_incomplete``` takes a ```uuid::Uuid``` and returns a ```models::Todos```
+/// 
+/// Return ```Ok(())``` if successful, or ```Err(Error)``` if unsuccessful.
+/// 
+
+pub fn todo_update_incomplete (todo_id: uuid::Uuid) -> Result<(), Error>{
+  let connection = &mut  establish_connection();
+  use crate::schema::todos::dsl::*;
+   diesel::update(todos.filter(id.eq(todo_id)))
+    .set(completed.eq(false))
+    .execute(connection)?;
+  Ok(())
+}
+/// Updates a todo by providing a todo_id
+/// 
+/// ```todo_update_information``` takes a ```models::UpdateTodos``` and returns a ```models::Todos```
+/// 
+/// Return ```Ok(())``` if successful, or ```Err(Error)``` if unsuccessful.
+/// 
+/// ```models::UpdateTodos``` is a struct that contains the following fields:
+/// 
+/// ```id: uuid::Uuid```
+/// 
+/// ```title: String```
+/// 
+/// ```description: String```
+/// 
+/// ```todopriority: i32```
+/// 
+
+
+
+
+pub fn todo_update_information (new_todo: models::UpdateTodos) -> Result<(), Error>{
   let connection = &mut  establish_connection();
   use crate::schema::todos::dsl::*;
   diesel::update(todos.filter(id.eq(new_todo.id)))
@@ -120,52 +248,136 @@ pub fn todo_update_information (new_todo: models::UpdateTodos) -> Result<models:
       description.eq(new_todo.description),
       todopriority.eq(new_todo.todopriority),
     ))
-    .get_result::<models::Todos>(connection)
-}
+   .execute(connection)?;
 
-pub fn todo_delete (todo_id: uuid::Uuid) -> Result<usize, Error>{
+  Ok(())
+}
+/// Deletes a todo by providing a todo_id
+/// 
+/// ```todo_delete``` takes a ```uuid::Uuid``` and returns a ```models::Todos```
+/// 
+/// Return ```Ok(())``` if successful, or ```Err(Error)``` if unsuccessful.
+/// 
+
+
+
+pub fn todo_delete (todo_id: uuid::Uuid) -> Result<(), Error>{
   let connection = &mut  establish_connection();
   use crate::schema::todos::dsl::*;
   diesel::delete(todos.filter(id.eq(todo_id)))
-    .execute(connection)
+    .execute(connection)?;
+  Ok(())
 }
 
-pub fn session_delete (session_token: String) -> Result<usize, Error>{
+/// Deletes a session by providing a session_token
+/// 
+/// ```session_delete``` takes a ```String``` and returns a ```models::Sessions```
+/// 
+/// Return ```Ok(())``` if successful, or ```Err(Error)``` if unsuccessful.
+/// 
+
+
+pub fn session_delete (session_token: String) -> Result<(), Error>{
   let connection = &mut  establish_connection();
   use crate::schema::sessions::dsl::*;
   diesel::delete(sessions.filter(token.eq(session_token)))
-    .execute(connection)
+    .execute(connection)?;
+  Ok(())
 }
 
+// User CRUD
+
+/// Updates a user's username by providing a ```models::UpdateUserName```
+/// 
+/// ```update_user_username``` takes a ```models::UpdateUserName``` and returns a ```models::Users```
+/// 
+/// Return ```models::Users``` if successful, or ```Err(Error)``` if unsuccessful.
+/// 
+/// ```models::UpdateUserName``` is a struct that contains the following fields:
+/// 
+/// ```id: uuid::Uuid```
+/// 
+/// ```username: String```
+/// 
 
 
-pub fn update_user_username (new_user:models::UpdateUserName) -> Result<models::Users, Error>{
+pub fn update_user_username (new_user:models::UpdateUserName) -> Result<(), Error>{
   let connection = &mut  establish_connection();
   use crate::schema::users::dsl::*;
   diesel::update(users.filter(id.eq(new_user.id)))
     .set(username.eq(new_user.username))
-    .get_result::<models::Users>(connection)
+    .execute(connection)?;
+  Ok(())
 }
 
-pub fn update_user_email (new_email: models::UpdateUserEmail) {
+/// Updates a user's email by providing a ```models::UpdateUserEmail```
+/// 
+/// ```update_user_email``` takes a ```models::UpdateUserEmail``` and returns a ```Result<(), Error>```
+/// 
+/// Return ```Ok()``` if successful, or ```Err(Error)``` if unsuccessful.
+/// 
+/// ```models::UpdateUserEmail``` is a struct that contains the following fields:
+/// 
+/// ```id: uuid::Uuid```
+/// 
+/// ```email: String```
+/// 
+/// 
+
+
+
+
+
+pub fn update_user_email (new_email: models::UpdateUserEmail) -> Result<(), Error> {
   let connection = &mut  establish_connection();
   use crate::schema::users::dsl::*;
   diesel::update(users.filter(id.eq(new_email.id)))
-    .set(email.eq(new_email.email)).execute(connection).expect("Error updating user email");
+    .set(email.eq(new_email.email)).execute(connection)?;
+  Ok(())
 }
 
-pub fn update_user_password (new_password: models::UpdateUserPassword) {
+/// Updates a user's password by providing a ```models::UpdateUserPassword```
+/// 
+/// ```update_user_password``` takes a ```models::UpdateUserPassword``` and returns a ```Result<(), Error>```
+/// 
+/// Return ```Ok(())``` if successful, or ```Err(Error)``` if unsuccessful.
+/// 
+/// ```models::UpdateUserPassword``` is a struct that contains the following fields:
+/// 
+/// ```id: uuid::Uuid```
+/// 
+/// ```password: String```
+/// 
+
+pub fn update_user_password (new_password: models::UpdateUserPassword) -> Result<(), Error>  {
   let connection = &mut  establish_connection();
   use crate::schema::users::dsl::*;
   diesel::update(users.filter(id.eq(new_password.id)))
-    .set(password.eq(new_password.password)).execute(connection).expect("Error updating user password");
+    .set(password.eq(new_password.password)).execute(connection)?;
+  Ok(())
 }
-pub fn verify_email_user (user_id: uuid::Uuid) {
+
+/// Updates a user's email_verified by providing a ```models::UpdateUserEmailVerified```
+///   
+/// ```update_user_email_verified``` takes a ```models::UpdateUserEmailVerified``` and returns a ```Result<(), Error>```
+/// 
+/// Return ```Ok(())``` if successful, or ```Err(Error)``` if unsuccessful.
+/// 
+pub fn verify_email_user (user_id: uuid::Uuid) -> Result<(), Error> {
   let connection = &mut  establish_connection();
   use crate::schema::users::dsl::*;
   diesel::update(users.filter(id.eq(user_id)))
-    .set(email_verified.eq(true)).execute(connection).expect("Error updating user email");
+    .set(email_verified.eq(true)).execute(connection)?;
+  Ok(())
 }
+
+
+/// Updates a user's email_verified by providing a ```models::UpdateUserEmailVerified```
+/// 
+/// ```update_user_email_verified``` takes a ```models::UpdateUserEmailVerified``` and returns a ```Result<(), Error>```
+/// 
+/// Return ```Ok(())``` if successful, or ```Err(Error)``` if unsuccessful.
+/// 
 pub fn remove_verify_email_user (user_id: uuid::Uuid) {
   let connection = &mut  establish_connection();
   use crate::schema::users::dsl::*;
@@ -173,7 +385,21 @@ pub fn remove_verify_email_user (user_id: uuid::Uuid) {
     .set(email_verified.eq(false)).execute(connection).expect("Error updating user email");
 }
 
-pub fn add_verify_token (user_idd: uuid::Uuid, tokenn: String, time: chrono::NaiveDateTime) {
+/// Add a a new Verification token to the database
+/// 
+/// ```add_verify_token``` takes a ```uuid::Uuid```, ```String```, and ```chrono::NaiveDateTime``` and returns a ```Result<(), Error>```
+/// 
+/// Return ```Ok(())``` if successful, or ```Err(Error)``` if unsuccessful.
+/// 
+/// ```uuid::Uuid``` is the user_id of the user
+/// 
+/// ```String``` is the token
+/// 
+/// ```chrono::NaiveDateTime``` is the expiration time of the token
+/// 
+
+
+pub fn add_verify_token (user_idd: uuid::Uuid, tokenn: String, time: chrono::NaiveDateTime)-> Result<(),Error> {
   let connection = &mut  establish_connection();
   use crate::schema::email_verify_tokens::dsl::*;
   let new_token = models::NewEmailVerifyTokens {
@@ -183,20 +409,43 @@ pub fn add_verify_token (user_idd: uuid::Uuid, tokenn: String, time: chrono::Nai
   };
   diesel::insert_into(email_verify_tokens)
     .values(&new_token)
-    .execute(connection)
-    .expect("Error saving new token");
+    .execute(connection)?;
+  Ok(())
 }
 
-pub fn get_verify_token (tokenn: String) -> models::EmailVerifyTokens {
+/// Get a Verification token from the database
+/// 
+/// ```get_verify_token``` takes a ```String``` and returns a ```Result<models::EmailVerifyTokens, Error>```
+/// 
+/// Return ```models::EmailVerifyTokens``` if successful, or ```Err(Error)``` if unsuccessful.
+/// 
+/// ```String``` is the token
+
+
+
+
+pub fn get_verify_token (tokenn: String) -> Result<models::EmailVerifyTokens, Error> {
   let connection = &mut  establish_connection();
   use crate::schema::email_verify_tokens::dsl::*;
-  email_verify_tokens.filter(token.eq(tokenn)).first::<models::EmailVerifyTokens>(connection).expect("Error loading token")
+  let result = email_verify_tokens.filter(token.eq(tokenn)).first::<models::EmailVerifyTokens>(connection)?;
+  Ok(result)
 }
-pub fn delete_verify_token (tokenn: String) {
+
+/// Delete a Verification token from the database
+/// 
+/// ```delete_verify_token``` takes a ```String``` and returns a ```Result<(), Error>```
+/// 
+/// Return ```Ok(())``` if successful, or ```Err(Error)``` if unsuccessful.
+/// 
+/// ```String``` is the token
+/// 
+
+pub fn delete_verify_token (tokenn: String) -> Result<(), Error> {
   let connection = &mut  establish_connection();
   use crate::schema::email_verify_tokens::dsl::*;
   diesel::delete(email_verify_tokens.filter(token.eq(tokenn)))
-    .execute(connection).expect("Error deleting token");
+    .execute(connection)?;
+  Ok(())
 }
 
 
@@ -215,7 +464,7 @@ mod test {
             password: "test".to_string(),
             email: "test".to_string(),
         };
-        create_user(user);
+         create_user(user).unwrap();
     }
     #[test]
     fn test_get_user_by_id () {
@@ -235,11 +484,11 @@ mod test {
         user_id: uuid::Uuid::parse_str("83a676d8-5093-44d5-bb3f-e5247cad018c").unwrap(),
         expires_at: chrono::NaiveDateTime::parse_from_str("2024-01-01 00:00:00", "%Y-%m-%d %H:%M:%S").unwrap(),
       };
-      init_session(session);
+      init_session(session).unwrap();
     }
     #[test]
     fn test_get_user_by_session () {
-      let user = get_user_by_session("test".to_string());
+      let user = get_user_by_session("test".to_string()).unwrap();
       println!("{:?}", user);
     }
     #[test]
@@ -251,7 +500,7 @@ mod test {
         todopriority: 1,
         user_id: uuid::Uuid::parse_str("83a676d8-5093-44d5-bb3f-e5247cad018c").unwrap(),
       };
-      create_toodo(todo);
+      create_toodo(todo).unwrap();
     }
     #[test]
     fn test_get_todos_by_user_id () {
@@ -298,7 +547,8 @@ mod test {
     #[test]
 
     fn test_verify_email_user(){
-      verify_email_user(uuid::Uuid::parse_str("83a676d8-5093-44d5-bb3f-e5247cad018c").unwrap());
+      let x =   verify_email_user(uuid::Uuid::parse_str("83a676d8-5093-44d5-bb3f-e5247cad018c").unwrap());
+      assert_eq!(x, Ok(()));
     }
 
   }
