@@ -1,11 +1,12 @@
 use diesel::prelude::*;
 use chrono;
+use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 #[derive(Queryable, Selectable, Debug )]
 #[diesel(table_name = crate::schema::users)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
-
+#[derive(Serialize, Deserialize)]
 pub struct Users {
   pub id: Uuid,
   pub username: String,
@@ -18,6 +19,7 @@ pub struct Users {
 #[derive(Insertable)]
 #[diesel(table_name = crate::schema::users)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
+#[derive(Serialize, Deserialize)]
 
 pub struct NewUsers {
   pub username: String,
@@ -25,6 +27,7 @@ pub struct NewUsers {
   pub email: String,
 }
 
+#[derive(Serialize, Deserialize)]
 
 #[derive(Queryable, Selectable, Debug, AsChangeset)]
 #[diesel(table_name = crate::schema::sessions)]
@@ -39,6 +42,7 @@ pub struct Sessions {
 
 
 
+#[derive(Serialize, Deserialize)]
 
 #[derive(Insertable)]
 #[diesel(table_name = crate::schema::sessions)]
@@ -52,6 +56,7 @@ pub struct NewSessions {
 
 
 
+#[derive(Serialize, Deserialize)]
 
 #[derive(Queryable, Selectable, Debug, Insertable, AsChangeset)]
 #[diesel(table_name = crate::schema::todos)]
@@ -68,6 +73,7 @@ pub struct Todos {
 }
 
 
+#[derive(Serialize, Deserialize)]
 
 #[derive(Insertable)]
 #[diesel(table_name = crate::schema::todos)]
@@ -79,6 +85,7 @@ pub struct CreateTodos {
   pub todopriority: i32,
   pub user_id: Uuid,
 }
+#[derive(Serialize, Deserialize)]
 
 #[derive(AsChangeset)]
 #[diesel(table_name = crate::schema::todos)]
@@ -90,6 +97,7 @@ pub struct UpdateTodos {
   pub todopriority: i32,
 }
 
+#[derive(Serialize, Deserialize)]
 
 #[derive(AsChangeset)]
 #[diesel(table_name = crate::schema::users)]
@@ -100,6 +108,7 @@ pub struct UpdateUserName {
   pub username: String,
 }
 
+#[derive(Serialize, Deserialize)]
 
 #[derive(AsChangeset)]
 #[diesel(table_name = crate::schema::users)]
@@ -110,6 +119,7 @@ pub struct UpdateUserEmail {
   pub email: String,
 }
 
+#[derive(Serialize, Deserialize)]
 
 #[derive(AsChangeset)]
 #[diesel(table_name = crate::schema::users)]
@@ -119,6 +129,7 @@ pub struct UpdateUserPassword {
   pub id: Uuid,
   pub password: String,
 }
+#[derive(Serialize, Deserialize)]
 
 #[derive(Queryable, Selectable, Debug)]
 #[diesel(table_name = crate::schema::email_verify_tokens)]
@@ -130,6 +141,7 @@ pub struct EmailVerifyTokens {
   pub expires_at: chrono::NaiveDateTime,
   pub created_at: chrono::NaiveDateTime,
 }
+#[derive(Serialize, Deserialize)]
 
 #[derive(Insertable)]
 #[diesel(table_name = crate::schema::email_verify_tokens)]

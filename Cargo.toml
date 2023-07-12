@@ -1,6 +1,6 @@
 [package]
 name = "disel_todo"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 author = "Chloe <chloevision97@gmail.com>"
 license = "MIT"
@@ -9,8 +9,17 @@ repository = "https://github.com/Chloe199719"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-uuid = { version = "0.8.2", features = ["serde", "v4"] }
-chrono = "0.4.26"
-diesel = { version = "2.1.0", features = ["postgres","chrono","uuid"] }
 
+chrono = { version = "0.4", features = ["serde"] }
+diesel = { version = "2.1.0", features = ["postgres","chrono","uuid"] }
+serde = { version = "1.0", features = ["derive"] }
 dotenvy = "0.15"
+
+[dependencies.uuid]
+version = "1.4.0"
+features = [
+     "serde",             # Enables serialization/deserialization support
+    "v4",                # Lets you generate random UUIDs
+    "fast-rng",          # Use a faster (but still sufficiently random) RNG
+    "macro-diagnostics", # Enable better diagnostics for compile-time UUIDs
+]
