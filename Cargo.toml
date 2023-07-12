@@ -2,11 +2,15 @@
 name = "disel_todo"
 version = "0.1.0"
 edition = "2021"
-
+author = "Chloe <chloevision97@gmail.com>"
+license = "MIT"
+description = "Lib for todo app"
+repository = "https://github.com/Chloe199719"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 uuid = { version = "0.8.2", features = ["serde", "v4"] }
 chrono = "0.4.26"
 diesel = { version = "2.1.0", features = ["postgres","chrono","uuid"] }
+
 dotenvy = "0.15"
