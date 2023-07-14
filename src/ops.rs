@@ -193,6 +193,27 @@ pub fn get_user_by_session (user_token: String) -> Result<(Sessions,models::User
   
 }
 
+
+/// Gets User Profile by providing a user_token
+/// 
+/// ```get_user_by_session``` takes a ```String``` and returns a ```models::Users```
+/// 
+/// Return ```models::Users``` if successful, or ```Err(Error)``` if unsuccessful.
+/// 
+
+pub fn get_user_by_session2 (user_token: String, connection: &mut PgConnection) -> Result<(Sessions,models::Users), Error> {
+  use crate::schema::sessions::dsl::*;
+  use crate::schema::users::dsl::*;
+  use crate::schema::users::dsl::id;
+
+  let session = sessions.inner_join(users).filter(token.eq(user_token)).first::<(Sessions, Users)>(connection)?;
+  // let user = users.filter(id.eq(session.user_id)).first::<models::Users>(connection)?;
+  
+  Ok(session)
+      
+  
+}
+
 /// Gets all todo's for a user
 /// 
 /// ```get_todo's_by_user_id``` takes a ```uuid::Uuid``` and returns a ```Vec<models::Todos>```

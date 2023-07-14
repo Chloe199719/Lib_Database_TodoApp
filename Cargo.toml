@@ -1,6 +1,6 @@
 [package]
 name = "disel_todo"
-version = "0.2.1"
+version = "0.2.2"
 edition = "2021"
 author = "Chloe <chloevision97@gmail.com>"
 license = "MIT"

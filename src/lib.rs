@@ -1,10 +1,12 @@
 use diesel::prelude::*;
-use diesel::pg::PgConnection;
+pub use diesel::pg::PgConnection;
 use dotenvy::dotenv;
 use std::env;
 pub mod models;
 mod schema;
 pub mod ops;
+
+
 
 pub enum DataBaseError {
   ConnectionError,
