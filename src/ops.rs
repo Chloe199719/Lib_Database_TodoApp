@@ -2,7 +2,7 @@
 #![allow(unused_imports)]
 use diesel:: result::Error;
 use chrono::NaiveDateTime;
-use crate::{establish_connection, models::UpdateUserName};
+use crate::{establish_connection, models::{UpdateUserName, Users, Sessions}};
 use diesel::prelude::*;
 // use super::establish_connection;
 use super::models;
@@ -174,7 +174,7 @@ pub fn get_user_by_email (user_email: String) -> Result< models::Users, Error>{
 /// Return ```models::Users``` if successful, or ```Err(Error)``` if unsuccessful.
 /// 
 
-pub fn get_user_by_session (user_token: String) -> Result<models::Users, Error> {
+pub fn get_user_by_session (user_token: String) -> Result<(Sessions,models::Users), Error> {
   let connection =  &mut establish_connection();
   let connection = match connection {
     Ok(connection) => connection,
@@ -185,9 +185,10 @@ pub fn get_user_by_session (user_token: String) -> Result<models::Users, Error> 
   use crate::schema::users::dsl::*;
   use crate::schema::users::dsl::id;
 
-  let session = sessions.filter(token.eq(user_token)).first::<models::Sessions>(connection)?;
-  let user = users.filter(id.eq(session.user_id)).first::<models::Users>(connection)?;
-  Ok(user)
+  let session = sessions.inner_join(users).filter(token.eq(user_token)).first::<(Sessions, Users)>(connection)?;
+  // let user = users.filter(id.eq(session.user_id)).first::<models::Users>(connection)?;
+  
+  Ok(session)
       
   
 }
