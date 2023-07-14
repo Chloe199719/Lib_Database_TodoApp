@@ -1,5 +1,7 @@
 #![allow(unused_variables)]
 #![allow(unused_imports)]
+use std::sync::Mutex;
+
 use diesel:: result::Error;
 use chrono::NaiveDateTime;
 use crate::{establish_connection, models::{UpdateUserName, Users, Sessions}};
@@ -201,12 +203,12 @@ pub fn get_user_by_session (user_token: String) -> Result<(Sessions,models::User
 /// Return ```models::Users``` if successful, or ```Err(Error)``` if unsuccessful.
 /// 
 
-pub fn get_user_by_session2 (user_token: String, connection: &mut PgConnection) -> Result<(Sessions,models::Users), Error> {
+pub fn get_user_by_session2 (user_token: String, connection: Mutex<PgConnection>) -> Result<(Sessions,models::Users), Error> {
   use crate::schema::sessions::dsl::*;
   use crate::schema::users::dsl::*;
   use crate::schema::users::dsl::id;
-
-  let session = sessions.inner_join(users).filter(token.eq(user_token)).first::<(Sessions, Users)>(connection)?;
+  let mut  conn =  connection.lock().unwrap();
+  let session = sessions.inner_join(users).filter(token.eq(user_token)).first::<(Sessions, Users)>(&mut *conn)?;
   // let user = users.filter(id.eq(session.user_id)).first::<models::Users>(connection)?;
   
   Ok(session)
