@@ -203,7 +203,7 @@ pub fn get_user_by_session (user_token: String) -> Result<(Sessions,models::User
 /// Return ```models::Users``` if successful, or ```Err(Error)``` if unsuccessful.
 /// 
 
-pub fn get_user_by_session2 (user_token: String, connection: Mutex<PgConnection>) -> Result<(Sessions,models::Users), Error> {
+pub fn get_user_by_session2 (user_token: String, connection: &Mutex<PgConnection>) -> Result<(Sessions,models::Users), Error> {
   use crate::schema::sessions::dsl::*;
   use crate::schema::users::dsl::*;
   use crate::schema::users::dsl::id;
